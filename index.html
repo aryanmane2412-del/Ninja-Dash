@@ -4,31 +4,132 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ninja Dash</title>
+  <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
 
   <!-- Link to our stylesheet (colors, layout, fonts) -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+  <!-- Holds the game area and (on touch screens) the touch controls -->
+  <div id="app">
+
   <!-- Main container that holds everything in the game area -->
   <main id="game-container">
 
-    <!-- Start screen: shown when the page first loads -->
+    <!-- ===== MENU state: the main menu ===== -->
     <section id="start-screen">
-      <h1 class="game-title">Ninja Dash</h1>
+      <h1 class="game-title">
+        <img class="title-shuriken" src="assets/images/shuriken.svg" alt="">
+        Ninja Dash
+      </h1>
       <p class="game-subtitle">Run. Jump. Survive.</p>
-      <button id="start-button">Start Game</button>
+      <div class="high-score-row">
+        <span>🏆 High Score: <strong id="menu-high-score">0</strong></span>
+        <button id="reset-high-score-button" class="text-button">Reset</button>
+      </div>
+      <button id="start-button" class="menu-button">Start Game</button>
+      <p class="controls-hint">A / D or ← / → to move · Space to jump · P or Esc to pause</p>
+      <div class="audio-toggles">
+        <button class="toggle-button sound-toggle">🔊 Sound: On</button>
+        <button class="toggle-button music-toggle">🎵 Music: On</button>
+      </div>
     </section>
 
-    <!-- Game canvas: hidden until the player clicks Start Game -->
+    <!-- Game canvas: always shown (behind the menus too) -->
     <canvas id="game-canvas" width="800" height="450" class="hidden"></canvas>
+
+    <!-- HUD: sits on top of the canvas -->
+    <div id="hud" class="hidden">
+      <!-- Left: health and score -->
+      <div class="hud-panel hud-left">
+        <div id="hud-hearts" class="hud-hearts" aria-label="Health"></div>
+        <div class="hud-label">Score <span id="hud-score" class="hud-value hud-score">0</span></div>
+      </div>
+
+      <!-- Center: difficulty level and progress to the next level -->
+      <div class="hud-panel hud-center">
+        <div class="hud-label">Difficulty <span id="hud-difficulty" class="hud-value">1</span></div>
+        <div class="hud-progress">
+          <div id="hud-progress-fill" class="hud-progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- Right: game time and pause button -->
+      <div class="hud-right-group">
+        <div class="hud-panel hud-right">
+          <div class="hud-label">Time</div>
+          <div id="hud-time" class="hud-value">0:00</div>
+        </div>
+        <button id="pause-button" class="hud-button" aria-label="Pause">❚❚</button>
+      </div>
+    </div>
+
+    <!-- Pops up for a moment when the difficulty goes up -->
+    <div id="level-up-message" class="hidden">Difficulty 2!</div>
+
+    <!-- ===== PAUSED state ===== -->
+    <section id="pause-screen" class="overlay-screen hidden">
+      <h2 class="overlay-title">Paused</h2>
+      <div class="overlay-buttons">
+        <button id="resume-button" class="menu-button">Resume</button>
+        <button class="menu-button secondary restart-button">Restart</button>
+        <button class="menu-button secondary main-menu-button">Main Menu</button>
+      </div>
+      <div class="audio-toggles">
+        <button class="toggle-button sound-toggle">🔊 Sound: On</button>
+        <button class="toggle-button music-toggle">🎵 Music: On</button>
+      </div>
+    </section>
+
+    <!-- ===== GAME_OVER state ===== -->
+    <section id="game-over-screen" class="overlay-screen hidden">
+      <h2 class="overlay-title game-over-title">Game Over</h2>
+      <p id="final-score-label" class="final-score-label">Final Score</p>
+      <p id="final-score" class="final-score">0</p>
+      <p class="final-stats">
+        Survived <span id="final-time">0:00</span> · Difficulty <span id="final-difficulty">1</span> · Best <span id="final-high-score">0</span>
+      </p>
+      <div class="overlay-buttons">
+        <button class="menu-button restart-button">Restart</button>
+        <button class="menu-button secondary main-menu-button">Main Menu</button>
+      </div>
+    </section>
 
   </main>
 
+  <!-- ===== Touch controls (phones and tablets only, see style.css) =====
+       They sit OUTSIDE the game area, so they never cover the canvas.
+       "touch-hold" buttons stay pressed while your finger is down. -->
+  <div id="touch-controls" aria-hidden="true">
+    <div class="touch-group touch-left">
+      <button class="touch-button touch-hold" data-action="left">◀</button>
+      <button class="touch-button touch-hold" data-action="right">▶</button>
+    </div>
+    <div class="touch-group touch-right">
+      <button id="touch-pause-button" class="touch-button touch-small">❚❚</button>
+      <button class="touch-button touch-hold touch-jump" data-action="jump">JUMP</button>
+    </div>
+  </div>
+
+  </div>
+
   <!-- Load our JavaScript last, so all the HTML above already exists.
-       input.js and player.js must come BEFORE game.js, because game.js uses them. -->
+       All other files must come BEFORE game.js, because game.js uses them. -->
+  <script src="js/graphics.js"></script>
   <script src="js/input.js"></script>
+  <script src="js/animation.js"></script>
+  <script src="js/platform.js"></script>
   <script src="js/player.js"></script>
+  <script src="js/enemy.js"></script>
+  <script src="js/coin.js"></script>
+  <script src="js/difficulty.js"></script>
+  <script src="js/background.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/hud.js"></script>
+  <script src="js/gameState.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/highScore.js"></script>
   <script src="js/game.js"></script>
 </body>
 </html>

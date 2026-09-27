@@ -8,6 +8,7 @@
 /* ===== Page background and centering ===== */
 body {
   min-height: 100vh;
+  min-height: 100dvh; /* Phones: the height without the browser's address bar */
   background: #0f1117;
   color: #e6e6e6;
   font-family: "Segoe UI", Arial, sans-serif;
@@ -17,6 +18,19 @@ body {
   justify-content: center;
   align-items: center;
   padding: 16px;
+
+  /* Stop double-tap zoom on phones */
+  touch-action: manipulation;
+}
+
+/* Game area + touch controls, stacked */
+#app {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
 /* ===== Game area ===== */
@@ -30,12 +44,19 @@ body {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
   overflow: hidden;
   position: relative;
+
+  /* Lets the HUD size its text by the GAME AREA's width (cqw units),
+     not the whole screen's width */
+  container-type: inline-size;
 }
 
 /* ===== Start screen ===== */
+/* Sits on top of the canvas, so the night scene shows through behind it */
 #start-screen {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: radial-gradient(ellipse at center, rgba(10, 12, 28, 0.55), rgba(5, 6, 14, 0.88));
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -46,12 +67,27 @@ body {
 }
 
 .game-title {
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
   font-size: clamp(2.5rem, 8vw, 4.5rem);
   font-weight: 800;
   letter-spacing: 4px;
   text-transform: uppercase;
   color: #ff4757;
-  text-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
+  text-shadow: 0 3px 0 #8e1d2a, 0 0 24px rgba(255, 71, 87, 0.55);
+}
+
+/* Spinning throwing star next to the title (assets/images/shuriken.svg) */
+.title-shuriken {
+  width: 0.8em;
+  height: 0.8em;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+  animation: shuriken-spin 2.5s linear infinite;
+}
+
+@keyframes shuriken-spin {
+  to { transform: rotate(360deg); }
 }
 
 .game-subtitle {
@@ -60,27 +96,258 @@ body {
   letter-spacing: 2px;
 }
 
-/* ===== Start Game button ===== */
-#start-button {
-  margin-top: 12px;
-  padding: 14px 40px;
-  font-size: 1.2rem;
+.controls-hint {
+  margin-top: 4px;
+  font-size: clamp(0.7rem, 2vw, 0.85rem);
+  color: #6b7185;
+}
+
+/* ===== Menu buttons (Start, Resume, Restart, Main Menu) ===== */
+.menu-button {
+  min-width: 11em;
+  padding: 0.7em 2em;
+  font-size: clamp(0.95rem, 2.6vw, 1.2rem);
   font-weight: 700;
   color: #ffffff;
-  background: #ff4757;
-  border: none;
-  border-radius: 8px;
+  background: linear-gradient(180deg, #ff6b78, #e8394b);
+  border: 2px solid #ff4757;
+  border-radius: 10px;
+  box-shadow: 0 4px 0 #8e1d2a, 0 8px 18px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
   cursor: pointer;
-  transition: transform 0.15s, background 0.15s;
+  transition: transform 0.15s, filter 0.15s, box-shadow 0.15s;
 }
 
-#start-button:hover {
-  background: #ff6b78;
-  transform: scale(1.05);
+.menu-button:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #8e1d2a, 0 12px 22px rgba(0, 0, 0, 0.4);
 }
 
-#start-button:active {
-  transform: scale(0.97);
+.menu-button:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #8e1d2a, 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+
+/* Less important buttons: outline only */
+.menu-button.secondary {
+  background: rgba(255, 255, 255, 0.04);
+  color: #e6e6e6;
+  border-color: #4a4f63;
+  box-shadow: 0 4px 0 #1f2230, 0 8px 18px rgba(0, 0, 0, 0.3);
+  text-shadow: none;
+}
+
+.menu-button.secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+#start-button {
+  margin-top: 12px;
+}
+
+/* ===== Pause and Game Over screens ===== */
+/* They cover the whole game area, on top of the canvas and HUD */
+.overlay-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(6px, 1.8vw, 12px);
+  padding: 16px;
+  text-align: center;
+
+  background: radial-gradient(ellipse at center, rgba(10, 12, 24, 0.6), rgba(5, 6, 14, 0.9));
+  animation: overlay-fade-in 0.2s ease-out;
+}
+
+/* Game Over waits a moment so you can see the ninja burst apart first */
+#game-over-screen {
+  background: radial-gradient(ellipse at center, rgba(40, 6, 14, 0.55), rgba(10, 2, 6, 0.9));
+  animation: overlay-fade-in 0.5s ease-out 0.8s both;
+}
+
+@keyframes overlay-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.overlay-title {
+  font-size: clamp(1.8rem, 6vw, 3rem);
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.game-over-title {
+  color: #ff4757;
+  text-shadow: 0 3px 0 #8e1d2a, 0 0 24px rgba(255, 71, 87, 0.6);
+  animation: game-over-slam 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) 0.8s both;
+}
+
+/* The title drops in big and "slams" into place */
+@keyframes game-over-slam {
+  from { transform: scale(2.2); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.final-score-label {
+  font-size: clamp(0.7rem, 2vw, 0.9rem);
+  color: #9aa0b0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.final-score {
+  font-size: clamp(2rem, 7vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1;
+  color: #ffd166;
+  font-variant-numeric: tabular-nums;
+}
+
+.final-stats {
+  font-size: clamp(0.75rem, 2vw, 0.95rem);
+  color: #9aa0b0;
+  margin-bottom: 6px;
+}
+
+/* ===== High score ===== */
+.high-score-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: clamp(0.85rem, 2.4vw, 1.05rem);
+  color: #e6e6e6;
+}
+
+.high-score-row strong {
+  color: #ffd166;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Small, quiet button that looks like a link */
+.text-button {
+  padding: 0.15em 0.5em;
+  font-size: 0.8em;
+  color: #9aa0b0;
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.text-button:hover {
+  color: #ff6b78;
+}
+
+.text-button:disabled {
+  visibility: hidden; /* Keeps its space so the row doesn't jump */
+}
+
+/* "New High Score!" on the Game Over screen */
+.final-score-label.new-record {
+  color: #ffd166;
+  font-weight: 700;
+  animation: record-pulse 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes record-pulse {
+  from { transform: scale(1); }
+  to   { transform: scale(1.08); }
+}
+
+/* ===== Sound / Music switches ===== */
+.audio-toggles {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.toggle-button {
+  padding: 0.35em 0.8em;
+  font-size: clamp(0.75rem, 2vw, 0.9rem);
+  color: #e6e6e6;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid #4a4f63;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.toggle-button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Switched off: dimmer */
+.toggle-button.is-off {
+  color: #6b7185;
+  border-style: dashed;
+}
+
+/* Buttons stacked in a column on big screens */
+.overlay-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(6px, 1.8vw, 12px);
+}
+
+/* ===== Small screens (phones) ===== */
+/* The game area is only about 180-260px tall here (narrow phones, or phones
+   held sideways), so squeeze things together and put the buttons side by side */
+@media (max-width: 600px), (max-height: 500px) {
+  #start-screen,
+  .overlay-screen {
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .game-title {
+    font-size: 2rem;
+  }
+
+  #start-button {
+    margin-top: 2px;
+  }
+
+  .overlay-title {
+    font-size: 1.5rem;
+    margin-bottom: 0;
+  }
+
+  .final-score {
+    font-size: 1.8rem;
+  }
+
+  .final-stats {
+    margin-bottom: 2px;
+  }
+
+  .overlay-buttons {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .menu-button {
+    min-width: 0;
+    padding: 0.5em 1em;
+    font-size: 0.9rem;
+  }
+
+  .audio-toggles {
+    margin-top: 0;
+  }
+
+  .controls-hint {
+    display: none; /* Keyboard hint isn't useful on phones, and saves space */
+  }
 }
 
 /* ===== Game canvas ===== */
@@ -91,7 +358,323 @@ body {
   background: #202433;
 }
 
+/* ===== HUD (score, health, difficulty, time) ===== */
+
+/* The HUD covers the top of the game area, on top of the canvas */
+#hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5%;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+
+  /* Font grows and shrinks with the game area, but stays readable.
+     1cqw = 1% of the game area's width. The vw line is a fallback
+     for older browsers that don't know cqw. */
+  font-size: clamp(11px, 2.2vw, 18px);
+  font-size: clamp(10px, 2.25cqw, 18px);
+
+  /* Clicks and taps go straight through to the game */
+  pointer-events: none;
+}
+
+/* Dark see-through box behind each HUD group, so text is readable
+   on any background */
+.hud-panel {
+  background: linear-gradient(180deg, rgba(20, 22, 40, 0.7), rgba(8, 10, 20, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  padding: 0.35em 0.7em;
+  line-height: 1.3;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.hud-center,
+.hud-right {
+  text-align: center;
+}
+
+.hud-label {
+  color: #9aa0b0;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.hud-value {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.25em;
+  font-variant-numeric: tabular-nums; /* Numbers don't jiggle as they change */
+}
+
+.hud-score {
+  display: inline-block;
+  color: #ffd166;
+}
+
+/* The score "bumps" bigger for a moment each time it goes up */
+.hud-score.bump {
+  animation: score-bump 0.3s ease-out;
+}
+
+@keyframes score-bump {
+  40% { transform: scale(1.35); color: #fff3c4; }
+  100% { transform: scale(1); }
+}
+
+/* Time panel and pause button side by side */
+.hud-right-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+/* Pause button: the HUD ignores clicks, but this button needs them */
+.hud-button {
+  pointer-events: auto;
+  width: 2.4em;
+  height: 2.4em;
+  font-size: 1em;
+  color: #e6e6e6;
+  background: rgba(10, 12, 20, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.hud-button:hover {
+  background: rgba(10, 12, 20, 0.85);
+}
+
+/* Hearts */
+.hud-hearts {
+  font-size: 1.4em;
+  line-height: 1;
+  letter-spacing: 2px;
+}
+
+.heart {
+  display: inline-block;
+  color: #ff4757;
+  text-shadow: 0 0 6px rgba(255, 71, 87, 0.6);
+}
+
+/* A lost heart shakes and turns grey */
+.heart.lost {
+  color: #4a4f63;
+  text-shadow: none;
+  animation: heart-lost 0.45s ease-out;
+}
+
+@keyframes heart-lost {
+  0%   { transform: scale(1.5); color: #ffffff; }
+  30%  { transform: scale(1.2) rotate(-15deg); }
+  60%  { transform: scale(1) rotate(10deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+/* Progress bar to the next difficulty level */
+.hud-progress {
+  width: 7em;
+  height: 0.4em;
+  margin-top: 0.25em;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.hud-progress-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #ffb703, #ffd166);
+  box-shadow: 0 0 6px rgba(255, 209, 102, 0.7);
+}
+
+/* "Difficulty 2!" pop-up message */
+#level-up-message {
+  position: absolute;
+  top: 24%;
+  left: 50%;
+  transform: translateX(-50%);
+
+  color: #ffd166;
+  font-size: clamp(20px, 5vw, 40px);
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-shadow: 0 3px 0 #9a6a00, 0 0 18px rgba(255, 209, 102, 0.6), 0 2px 8px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+  pointer-events: none;
+
+  /* Plays every time the message is shown */
+  animation: level-up-pop 0.4s ease-out;
+}
+
+@keyframes level-up-pop {
+  from {
+    transform: translateX(-50%) scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+}
+
 /* ===== Helper class to hide elements ===== */
 .hidden {
   display: none !important;
+}
+
+/* ===== Touch controls ===== */
+/* Hidden on computers with a mouse. Shown only on touch screens
+   ("pointer: coarse" means the main pointer is a finger). */
+#touch-controls {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  #touch-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+
+    /* Always takes up its space, but only VISIBLE while playing.
+       That way the game area doesn't jump in size when you press Start. */
+    visibility: hidden;
+  }
+
+  body[data-state="PLAYING"] #touch-controls {
+    visibility: visible;
+  }
+
+  /* The touch bar has its own big Pause button, and the keyboard hint
+     isn't useful without a keyboard */
+  #pause-button,
+  .controls-hint {
+    display: none;
+  }
+
+  /* Leave room below the game for the touch bar (about 90px) so
+     everything fits on screen without scrolling */
+  #game-container {
+    max-width: min(800px, calc((100dvh - 32px - 12px - 90px) * 16 / 9));
+  }
+}
+
+.touch-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.touch-button {
+  /* Big and easy to hit: at least 64px, bigger on larger screens */
+  width: clamp(64px, 16vw, 88px);
+  height: clamp(64px, 16vw, 88px);
+
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  font-weight: 800;
+  color: #e6e6e6;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid #4a4f63;
+  border-radius: 50%;
+
+  /* Phones: no scrolling, zooming, text selection or grey tap flash */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Lights up while a finger is on it */
+.touch-button.is-pressed {
+  background: rgba(255, 71, 87, 0.35);
+  border-color: #ff4757;
+  transform: scale(0.94);
+}
+
+.touch-jump {
+  width: clamp(88px, 24vw, 120px);
+  border-radius: 999px;
+  font-size: clamp(1rem, 4vw, 1.3rem);
+  letter-spacing: 1px;
+  color: #ffffff;
+  background: rgba(255, 71, 87, 0.2);
+  border-color: #ff4757;
+}
+
+.touch-small {
+  width: 52px;
+  height: 52px;
+  font-size: 1rem;
+}
+
+/* ===== Touch screens held sideways (landscape) ===== */
+/* Not much height, so put the controls at the SIDES of the game:
+   Left / Right under the left thumb, Pause / Jump under the right thumb */
+@media (pointer: coarse) and (orientation: landscape) {
+  body {
+    padding: 8px 12px;
+  }
+
+  #app {
+    max-width: none;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: end;
+    gap: 12px;
+  }
+
+  /* The bar "disappears" as a box, so its two groups become grid items */
+  #touch-controls {
+    display: contents;
+  }
+
+  .touch-left {
+    grid-column: 1;
+    grid-row: 1;
+    visibility: hidden;
+  }
+
+  .touch-right {
+    grid-column: 3;
+    grid-row: 1;
+    flex-direction: column; /* Pause on top, Jump at the bottom under the thumb */
+    visibility: hidden;
+  }
+
+  body[data-state="PLAYING"] .touch-left,
+  body[data-state="PLAYING"] .touch-right {
+    visibility: visible;
+  }
+
+  #game-container {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    justify-self: center;
+    /* As wide as the screen height allows */
+    max-width: min(800px, calc((100dvh - 16px) * 16 / 9));
+  }
+
+  .touch-button {
+    width: clamp(60px, 9vw, 84px);
+    height: clamp(60px, 9vw, 84px);
+  }
+
+  .touch-jump {
+    width: clamp(72px, 11vw, 100px);
+    height: clamp(72px, 11vw, 100px);
+    border-radius: 50%;
+    font-size: clamp(0.85rem, 2.2vw, 1.2rem);
+  }
 }
