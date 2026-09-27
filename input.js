@@ -33,17 +33,62 @@ window.addEventListener("blur", function () {
   }
 });
 
+// ----- Touch button states -----
+// The on-screen buttons (phones/tablets) set these to true while held.
+const touchPressed = {
+  left: false,
+  right: false,
+  jump: false,
+};
+
+// Connect one on-screen button to one touchPressed action.
+// Pointer events work for fingers, mouse and pen, and each finger is
+// tracked separately - so you can hold Right and tap Jump at the same time.
+function connectTouchButton(button, action) {
+  function press(event) {
+    event.preventDefault(); // No scrolling, zooming or text selection
+    touchPressed[action] = true;
+    button.classList.add("is-pressed");
+  }
+  function release() {
+    touchPressed[action] = false;
+    button.classList.remove("is-pressed");
+  }
+
+  button.addEventListener("pointerdown", press);
+  button.addEventListener("pointerup", release);
+  button.addEventListener("pointercancel", release); // e.g. a phone call interrupts
+  button.addEventListener("pointerleave", release);  // finger slid off the button
+  button.addEventListener("contextmenu", function (event) {
+    event.preventDefault(); // Long-press shouldn't open a menu
+  });
+}
+
+// Let go of every touch button (used when the game is paused or ends)
+function releaseTouchButtons() {
+  for (const action in touchPressed) {
+    touchPressed[action] = false;
+  }
+  for (const button of document.querySelectorAll(".touch-hold")) {
+    button.classList.remove("is-pressed");
+  }
+}
+
+// Also release touch buttons when the window loses focus
+window.addEventListener("blur", releaseTouchButtons);
+
 // ----- Helper functions the game can ask -----
+// Keyboard OR touch - the player code doesn't need to know which one.
 const input = {
   isMoveLeftPressed: function () {
-    return keysPressed["KeyA"] === true || keysPressed["ArrowLeft"] === true;
+    return keysPressed["KeyA"] === true || keysPressed["ArrowLeft"] === true || touchPressed.left;
   },
 
   isMoveRightPressed: function () {
-    return keysPressed["KeyD"] === true || keysPressed["ArrowRight"] === true;
+    return keysPressed["KeyD"] === true || keysPressed["ArrowRight"] === true || touchPressed.right;
   },
 
   isJumpPressed: function () {
-    return keysPressed["Space"] === true;
+    return keysPressed["Space"] === true || touchPressed.jump;
   },
 };
