@@ -1,0 +1,97 @@
+/* ===== Basic page reset ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ===== Page background and centering ===== */
+body {
+  min-height: 100vh;
+  background: #0f1117;
+  color: #e6e6e6;
+  font-family: "Segoe UI", Arial, sans-serif;
+
+  /* Flexbox puts the game area in the middle of the screen */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+/* ===== Game area ===== */
+#game-container {
+  width: 100%;
+  max-width: 800px;
+  aspect-ratio: 16 / 9;
+  background: #1a1d27;
+  border: 2px solid #2c3140;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ===== Start screen ===== */
+#start-screen {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  padding: 16px;
+}
+
+.game-title {
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  font-weight: 800;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #ff4757;
+  text-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
+}
+
+.game-subtitle {
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  color: #9aa0b0;
+  letter-spacing: 2px;
+}
+
+/* ===== Start Game button ===== */
+#start-button {
+  margin-top: 12px;
+  padding: 14px 40px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: #ff4757;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+}
+
+#start-button:hover {
+  background: #ff6b78;
+  transform: scale(1.05);
+}
+
+#start-button:active {
+  transform: scale(0.97);
+}
+
+/* ===== Game canvas ===== */
+#game-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #202433;
+}
+
+/* ===== Helper class to hide elements ===== */
+.hidden {
+  display: none !important;
+}

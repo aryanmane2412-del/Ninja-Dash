@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ninja Dash</title>
+
+  <!-- Link to our stylesheet (colors, layout, fonts) -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Main container that holds everything in the game area -->
+  <main id="game-container">
+
+    <!-- Start screen: shown when the page first loads -->
+    <section id="start-screen">
+      <h1 class="game-title">Ninja Dash</h1>
+      <p class="game-subtitle">Run. Jump. Survive.</p>
+      <button id="start-button">Start Game</button>
+    </section>
+
+    <!-- Game canvas: hidden until the player clicks Start Game -->
+    <canvas id="game-canvas" width="800" height="450" class="hidden"></canvas>
+
+  </main>
+
+  <!-- Load our JavaScript last, so all the HTML above already exists.
+       input.js and player.js must come BEFORE game.js, because game.js uses them. -->
+  <script src="js/input.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
