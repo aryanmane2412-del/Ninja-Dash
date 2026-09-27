@@ -678,3 +678,193 @@ body {
     font-size: clamp(0.85rem, 2.2vw, 1.2rem);
   }
 }
+
+/* ===== Level system screens ===== */
+
+/* Level name in the HUD */
+.hud-level {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.95em;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.hud-coins {
+  color: #ffd166;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Menus with many buttons: two columns side by side instead of one tall column */
+.overlay-buttons.wide {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 34em;
+}
+
+.overlay-buttons.wide .menu-button {
+  min-width: 13em;
+}
+
+/* Long screens can scroll on very small phones instead of being cut off */
+.overlay-screen {
+  overflow-y: auto;
+}
+
+.level-complete-title,
+.game-complete-title {
+  color: #ffd166;
+  text-shadow: 0 3px 0 #9a6a00, 0 0 24px rgba(255, 209, 102, 0.55);
+}
+
+.game-complete-title {
+  animation: game-over-slam 0.6s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+
+/* Result numbers: Score, Coins, Time, Health */
+.stat-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(6px, 1.5vw, 12px);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 6.5em;
+  padding: 0.4em 0.8em;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.stat-label {
+  font-size: clamp(0.65rem, 1.8vw, 0.8rem);
+  color: #9aa0b0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stat-value {
+  font-size: clamp(1.1rem, 3.2vw, 1.6rem);
+  font-weight: 800;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-value.gold {
+  color: #ffd166;
+}
+
+.stat-value.hearts {
+  color: #ff4757;
+  letter-spacing: 2px;
+}
+
+/* ----- Level Select ----- */
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: clamp(6px, 1.4vw, 12px);
+  width: min(100%, 36em);
+}
+
+.level-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0.5em 0.3em;
+  color: #e6e6e6;
+  background: linear-gradient(180deg, rgba(40, 44, 70, 0.9), rgba(20, 22, 40, 0.9));
+  border: 2px solid #4a4f63;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.level-card:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: #ff4757;
+}
+
+.level-card-number {
+  font-size: clamp(1.1rem, 3.5vw, 1.7rem);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.level-card-name {
+  font-size: clamp(0.55rem, 1.6vw, 0.75rem);
+  color: #b8bfd0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.level-card-best {
+  font-size: clamp(0.5rem, 1.4vw, 0.7rem);
+  color: #ffd166;
+}
+
+.level-card-status {
+  position: absolute;
+  top: 3px;
+  right: 6px;
+  font-size: clamp(0.6rem, 1.6vw, 0.85rem);
+}
+
+/* Completed: green border and tick */
+.level-card.completed {
+  border-color: #3f9e55;
+  background: linear-gradient(180deg, rgba(35, 70, 50, 0.9), rgba(18, 36, 26, 0.9));
+}
+
+.level-card.completed .level-card-status {
+  color: #6fd680;
+  font-weight: 800;
+}
+
+/* Locked: dim and not clickable */
+.level-card.locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.level-card.locked .level-card-best {
+  color: #9aa0b0;
+}
+
+.level-select-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+/* Small screens: tighter cards and results */
+@media (max-width: 600px), (max-height: 500px) {
+  .level-grid {
+    gap: 4px;
+  }
+
+  .level-card {
+    padding: 0.25em 0.2em;
+    border-width: 1px;
+  }
+
+  .stat {
+    min-width: 5em;
+    padding: 0.2em 0.5em;
+  }
+
+  .overlay-buttons.wide .menu-button {
+    min-width: 0;
+  }
+}

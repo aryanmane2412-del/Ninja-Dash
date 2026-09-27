@@ -29,6 +29,7 @@
         <button id="reset-high-score-button" class="text-button">Reset</button>
       </div>
       <button id="start-button" class="menu-button">Start Game</button>
+      <button class="menu-button secondary level-select-button">Level Select</button>
       <p class="controls-hint">A / D or ← / → to move · Space to jump · P or Esc to pause</p>
       <div class="audio-toggles">
         <button class="toggle-button sound-toggle">🔊 Sound: On</button>
@@ -45,10 +46,12 @@
       <div class="hud-panel hud-left">
         <div id="hud-hearts" class="hud-hearts" aria-label="Health"></div>
         <div class="hud-label">Score <span id="hud-score" class="hud-value hud-score">0</span></div>
+        <div class="hud-label">Coins <span id="hud-coins" class="hud-coins">0/0</span></div>
       </div>
 
-      <!-- Center: difficulty level and progress to the next level -->
+      <!-- Center: level, difficulty and progress to the next difficulty -->
       <div class="hud-panel hud-center">
+        <div class="hud-level"><span id="hud-level-number">Level 1</span> · <span id="hud-level-name">Training</span></div>
         <div class="hud-label">Difficulty <span id="hud-difficulty" class="hud-value">1</span></div>
         <div class="hud-progress">
           <div id="hud-progress-fill" class="hud-progress-fill"></div>
@@ -65,15 +68,26 @@
       </div>
     </div>
 
-    <!-- Pops up for a moment when the difficulty goes up -->
-    <div id="level-up-message" class="hidden">Difficulty 2!</div>
+    <!-- Banner that pops up for a moment: level name, "Checkpoint!", difficulty up -->
+    <div id="level-up-message" class="hidden">Level 1</div>
+
+    <!-- ===== LEVEL_SELECT state ===== -->
+    <section id="level-select-screen" class="overlay-screen hidden">
+      <h2 class="overlay-title">Select Level</h2>
+      <p id="level-select-progress" class="final-stats">0 of 10 levels completed</p>
+      <div id="level-grid" class="level-grid"></div>
+      <div class="level-select-footer">
+        <button class="menu-button secondary main-menu-button">Main Menu</button>
+        <button id="reset-progress-button" class="text-button">Reset progress</button>
+      </div>
+    </section>
 
     <!-- ===== PAUSED state ===== -->
     <section id="pause-screen" class="overlay-screen hidden">
       <h2 class="overlay-title">Paused</h2>
       <div class="overlay-buttons">
         <button id="resume-button" class="menu-button">Resume</button>
-        <button class="menu-button secondary restart-button">Restart</button>
+        <button class="menu-button secondary restart-button">Restart Level</button>
         <button class="menu-button secondary main-menu-button">Main Menu</button>
       </div>
       <div class="audio-toggles">
@@ -88,10 +102,48 @@
       <p id="final-score-label" class="final-score-label">Final Score</p>
       <p id="final-score" class="final-score">0</p>
       <p class="final-stats">
-        Survived <span id="final-time">0:00</span> · Difficulty <span id="final-difficulty">1</span> · Best <span id="final-high-score">0</span>
+        <span id="final-level">Level 1 · Training</span> · Time <span id="final-time">0:00</span> · Best <span id="final-high-score">0</span>
       </p>
-      <div class="overlay-buttons">
-        <button class="menu-button restart-button">Restart</button>
+      <div class="overlay-buttons wide">
+        <button id="continue-button" class="menu-button hidden">Continue from Checkpoint</button>
+        <button id="game-over-restart" class="menu-button restart-button">Restart Level</button>
+        <button class="menu-button secondary level-select-button">Level Select</button>
+        <button class="menu-button secondary main-menu-button">Main Menu</button>
+      </div>
+    </section>
+
+    <!-- ===== LEVEL_COMPLETE state ===== -->
+    <section id="level-complete-screen" class="overlay-screen hidden">
+      <h2 class="overlay-title level-complete-title">Level Complete!</h2>
+      <p id="complete-level-name" class="final-score-label">Level 1 · Training</p>
+      <div class="stat-grid">
+        <div class="stat"><span class="stat-label">Score</span><span id="complete-score" class="stat-value gold">0</span></div>
+        <div class="stat"><span class="stat-label">Coins</span><span id="complete-coins" class="stat-value">0 / 0</span></div>
+        <div class="stat"><span class="stat-label">Time</span><span id="complete-time" class="stat-value">0:00</span></div>
+        <div class="stat"><span class="stat-label">Health</span><span id="complete-health" class="stat-value hearts">♥♥♥</span></div>
+      </div>
+      <p id="complete-bonus" class="final-stats">Includes finish bonus</p>
+      <div class="overlay-buttons wide">
+        <button id="next-level-button" class="menu-button">Next Level ▶</button>
+        <button id="replay-level-button" class="menu-button secondary">Replay Level</button>
+        <button class="menu-button secondary level-select-button">Level Select</button>
+        <button class="menu-button secondary main-menu-button">Main Menu</button>
+      </div>
+    </section>
+
+    <!-- ===== GAME_COMPLETE state (after Level 10) ===== -->
+    <section id="game-complete-screen" class="overlay-screen hidden">
+      <h2 class="overlay-title game-complete-title">Game Completed!</h2>
+      <p class="final-score-label">You cleared all 10 levels of Ninja Dash</p>
+      <div class="stat-grid">
+        <div class="stat"><span class="stat-label">Total Score</span><span id="total-score" class="stat-value gold">0</span></div>
+        <div class="stat"><span class="stat-label">Total Coins</span><span id="total-coins" class="stat-value">0</span></div>
+        <div class="stat"><span class="stat-label">Levels</span><span id="total-levels" class="stat-value">10 / 10</span></div>
+        <div class="stat"><span class="stat-label">Total Time</span><span id="total-time" class="stat-value">0:00</span></div>
+      </div>
+      <div class="overlay-buttons wide">
+        <button id="play-again-button" class="menu-button">Play Again</button>
+        <button class="menu-button secondary level-select-button">Level Select</button>
         <button class="menu-button secondary main-menu-button">Main Menu</button>
       </div>
     </section>
@@ -119,6 +171,7 @@
   <script src="js/graphics.js"></script>
   <script src="js/input.js"></script>
   <script src="js/animation.js"></script>
+  <script src="js/levels.js"></script>
   <script src="js/platform.js"></script>
   <script src="js/player.js"></script>
   <script src="js/enemy.js"></script>
@@ -126,10 +179,12 @@
   <script src="js/difficulty.js"></script>
   <script src="js/background.js"></script>
   <script src="js/effects.js"></script>
+  <script src="js/levelObjects.js"></script>
   <script src="js/hud.js"></script>
   <script src="js/gameState.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/highScore.js"></script>
+  <script src="js/progress.js"></script>
   <script src="js/game.js"></script>
 </body>
 </html>
